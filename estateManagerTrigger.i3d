@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<i3D name="estateAgentTrigger" version="1.6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://i3d.giants.ch/schema/i3d-1.6.xsd">
+  <Asset>
+    <Export program="GIANTS Editor 64bit" version="8.2.2"/>
+  </Asset>
+
+  <Files>
+  </Files>
+
+
+  <Materials>
+    <Material name="trigger_mat" materialId="4" diffuseColor="0.109804 0.427451 0.494118 0.494118" specularColor="0.913726 1 0.54902" alphaBlending="true">
+    </Material>
+  </Materials>
+
+
+  <Shapes externalShapesFile="estateManagerTrigger.i3d.shapes">
+  </Shapes>
+
+
+  <Dynamics>
+  </Dynamics>
+
+  <Scene>
+    <TransformGroup name="estateAgent" clipDistance="10" nodeId="7">
+      <Shape shapeId="1" name="estateAgentTrigger" static="true" trigger="true" collisionMask="133169152" clipDistance="10" nodeId="8" materialIds="4" nonRenderable="true"/>
+    </TransformGroup>
+  </Scene>
+
+  <UserAttributes>
+    <UserAttribute nodeId="7">
+      <Attribute name="onCreate" type="scriptCallback" value="modOnCreate.EstateAgent"/>
+    </UserAttribute>
+  </UserAttributes>
+
+</i3D>
