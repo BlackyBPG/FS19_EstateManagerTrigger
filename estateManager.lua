@@ -3,6 +3,7 @@
 -- by Blacky_BPG
 -- 
 --
+-- Version 1.9.0.2   | 25.08.2021 - simplified functions for disable buy/sell farmlands
 -- Version 1.9.0.1   | 03.05.2021 - fix for precision farming
 -- Version 1.9.0.0   | 31.03.2021 - initial Version for FS19
 --
@@ -10,13 +11,15 @@
 -- 
 
 EstateAgent = {}
-EstateAgent.version = "1.9.0.1"
-EstateAgent.date = "03.05.2021"
+EstateAgent.version = "1.9.0.2"
+EstateAgent.date = "25.08.2021"
 EstateAgent_mt = Class(EstateAgent)
 
 function EstateAgent.onCreate(id)
 	local object = EstateAgent:new(id)
 	g_currentMission:addNonUpdateable(object)
+	g_currentMission.inGameMenu.pageMapOverview.buttonSellFarmland:setDisabled(true)
+	g_currentMission.inGameMenu.pageMapOverview.buttonBuyFarmland:setDisabled(true)
 end
 
 function EstateAgent:new(id)
@@ -36,22 +39,25 @@ function EstateAgent:new(id)
 	return self
 end
 
-function EstateAgent:getFarmlandOwner(superFunc, farmlandId)
+function EstateAgent:onClickSellFarmland(superFunc, varA, varB, varC, varD, varE, varF, varG)
 	if self.isClient or g_client ~= nil or g_currentMission.player.isClient then
-		local override = false
-		if g_gui.currentGui ~= nil and g_gui.currentGui.target ~= nil and g_gui.currentGui.target.currentPage ~= nil and g_gui.currentGui.target.currentPage.isPrecisionFarmingPage then
-			override = true
+		if g_currentMission.estateAgentActive == true then
+			return superFunc(self, varA, varB, varC, varD, varE, varF, varG)
 		end
-		if not override and g_currentMission.estateAgentActive == false and g_gui.currentGui ~= nil and g_gui.currentGuiName == "InGameMenu" then
-			return FarmlandManager.NOT_BUYABLE_FARM_ID
-		else
-			return superFunc(self, farmlandId)
-		end
-	else
-		return superFunc(self, farmlandId)
 	end
+	return nil
 end
-FarmlandManager.getFarmlandOwner = Utils.overwrittenFunction(FarmlandManager.getFarmlandOwner, EstateAgent.getFarmlandOwner)
+InGameMenuMapFrame.onClickSellFarmland = Utils.overwrittenFunction(InGameMenuMapFrame.onClickSellFarmland, EstateAgent.onClickSellFarmland)
+
+function EstateAgent:onClickBuyFarmland(superFunc, varA, varB, varC, varD, varE, varF, varG)
+	if self.isClient or g_client ~= nil or g_currentMission.player.isClient then
+		if g_currentMission.estateAgentActive == true then
+			return superFunc(self, varA, varB, varC, varD, varE, varF, varG)
+		end
+	end
+	return nil
+end
+InGameMenuMapFrame.onClickBuyFarmland = Utils.overwrittenFunction(InGameMenuMapFrame.onClickBuyFarmland, EstateAgent.onClickBuyFarmland)
 
 function EstateAgent:delete()
 	for _, estateAgentTrigger in pairs(self.estateAgentTrigger) do
@@ -63,9 +69,15 @@ function EstateAgent:triggerCallback(triggerId, otherId, onEnter, onLeave, onSta
 	if onEnter then
 		if g_currentMission.player ~= nil and otherId == g_currentMission.player.rootNode and g_currentMission.controlPlayer then
 			g_currentMission.estateAgentActive = true
+			g_currentMission.inGameMenu.pageMapOverview.buttonSellFarmland:setDisabled(false)
+			g_currentMission.inGameMenu.pageMapOverview.buttonBuyFarmland:setDisabled(false)
 		end
 	else
-		g_currentMission.estateAgentActive = false
+		if g_currentMission.player ~= nil and otherId == g_currentMission.player.rootNode and g_currentMission.controlPlayer then
+			g_currentMission.estateAgentActive = false
+			g_currentMission.inGameMenu.pageMapOverview.buttonSellFarmland:setDisabled(true)
+			g_currentMission.inGameMenu.pageMapOverview.buttonBuyFarmland:setDisabled(true)
+		end
 	end
 end
 
